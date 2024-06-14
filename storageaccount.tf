@@ -18,7 +18,7 @@ resource "azurerm_storage_account" "StorageAccountDemo" {
 }
 
 ## Another test
-resource "azurerm_storage_account" "StorageAccountDemo" {
+resource "azurerm_storage_account" "StorageAccountDemo2" {
   name                     = "mysagitadotfc01"
   resource_group_name      = azurerm_resource_group.demo.name
   location                 = azurerm_resource_group.demo.location
