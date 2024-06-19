@@ -12,7 +12,7 @@ resource "azurerm_storage_account" "StorageAccountDemo" {
   account_replication_type = "GRS"
 
   tags = {
-    video = "azure"
+    video   = "azure"
     channel = "CloudQuickLabs"
   }
 }
@@ -26,7 +26,7 @@ resource "azurerm_storage_account" "StorageAccountDemo2" {
   account_replication_type = "GRS"
 
   tags = {
-    video = "azure"
+    video   = "azure"
     channel = "CloudQuickLabs"
   }
 }
@@ -40,7 +40,7 @@ resource "azurerm_storage_account" "StorageAccountDemo3" {
   account_replication_type = "GRS"
 
   tags = {
-    video = "azure"
+    video   = "azure"
     channel = "CloudQuickLabs"
   }
 }
