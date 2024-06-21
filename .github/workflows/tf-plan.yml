@@ -5,6 +5,17 @@ on:
     branches:
       - FeatureSA01
 
+  workflow_dispatch:
+    inputs:
+      workspace:
+        description: 'Select Terraform Cloud Workspace'
+        required: true
+        type: choice
+        options:
+          - iac-dev
+          - iac-staging
+          - iac-production
+
 jobs:
   terraform:
     name: "Terraform"
@@ -25,7 +36,11 @@ jobs:
 
       - name: Terraform Init
         id: init
-        run: terraform init
+        run: terraform init -backend-config="organization=${{ env.TF_VAR_org }}" -backend-config="workspaces.name=${{ github.event.inputs.workspace }}"
+
+      - name: Select Terraform Cloud workspace
+        run: terraform workspace select ${{ github.event.inputs.workspace }}
+        continue-on-error: true  # Allow to continue if workspace doesn't exist
 
       - name: Terraform Validate
         id: validate

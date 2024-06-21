@@ -6,12 +6,12 @@ terraform {
       version = ">= 3.98.0"
     }
   }
-  cloud {
-    organization = "github-tfc-ado"
-    workspaces {
-      name = "ado-integration"
-    }
-  }
+  # cloud {
+  #   organization = "github-tfc-ado"
+  #   workspaces {
+  #     name = "ado-integration"
+  #   }
+  # }
 }
 
 provider "azurerm" {
