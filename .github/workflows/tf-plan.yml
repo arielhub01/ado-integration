@@ -3,7 +3,7 @@ name: "Terraform-Plan-Infra-Plan"
 on:
   push:
     branches:
-      - FeatureSA01
+      - main
 
   workflow_dispatch:
     inputs:
