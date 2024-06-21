@@ -44,7 +44,7 @@ jobs:
 
       - name: Set Terraform Workspace
         id: workspace
-        run: terraform workspace select ${{ env.TF_WORKSPACE }}
+        run:  terraform workspace select ${{ github.event.inputs.workspace }}
 
       - name: Terraform Validate
         id: validate
