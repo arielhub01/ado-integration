@@ -14,12 +14,12 @@ terraform {
       prefix = "iac-"
     }
   }
-  # cloud {
-  #   organization = "github-tfc-ado"
+   cloud {
+     organization = "github-tfc-ado"
   #   workspaces {
   #     name = "ado-integration"
   #   }
-  # }
+   }
 }
 
 provider "azurerm" {
