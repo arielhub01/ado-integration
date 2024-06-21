@@ -12,9 +12,9 @@ on:
         default: 'iac-dev'
         type: choice
         options:
-          - 'iac-dev'
-          - 'iac-staging'
-          - 'iac-prod'
+          - iac-dev
+          - iac-staging
+          - iac-prod
 
 jobs:
   terraform:
@@ -30,13 +30,16 @@ jobs:
         with:
           cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
+      - name: Unset TF_WORKSPACE
+        run: unset TF_WORKSPACE
+
       - name: Terraform Init
         id: init
-        run: terraform init -backend-config="organization=github-tfc-ado"
+        run: terraform init -backend-config="organization=github-tfc-ado" -reconfigure
 
       - name: Set Terraform Workspace
         id: workspace
-        run: terraform workspace select ${{ github.event.inputs.workspace }}
+        run: terraform workspace select ${{ github.event.inputs.workspace }} || terraform workspace new ${{ github.event.inputs.workspace }}
 
       - name: Terraform Format
         id: fmt
@@ -48,5 +51,5 @@ jobs:
 
       - name: Terraform Plan
         id: plan
-        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        if: github.event_name == 'push' || github.event.inputs.workspace
         run: terraform plan -no-color
