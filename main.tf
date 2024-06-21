@@ -6,6 +6,14 @@ terraform {
       version = ">= 3.98.0"
     }
   }
+
+    backend "remote" {
+    organization = "github-tfc-ado"
+
+    workspaces {
+      prefix = "iac-"
+    }
+  }
   # cloud {
   #   organization = "github-tfc-ado"
   #   workspaces {
