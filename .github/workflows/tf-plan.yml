@@ -44,7 +44,10 @@ jobs:
       - name: Select Terraform Workspace
         id: workspace
         run: |
-          terraform workspace select ${{ github.event.inputs.workspace }} || terraform workspace new ${{ github.event.inputs.workspace }}
+          terraform workspace select ${{ github.event.inputs.workspace }}
+      
+      - name: Terraform Workspace List
+        run: terraform workspace list
 
       - name: Terraform Format
         id: fmt
