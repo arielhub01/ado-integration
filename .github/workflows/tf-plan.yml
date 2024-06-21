@@ -41,11 +41,11 @@ jobs:
             -reconfigure \
             -input=false
 
-      - name: Select Terraform Workspace
+      - name: Terraform Workspace Select
         id: workspace
         run: |
-          terraform workspace select ${{ github.event.inputs.workspace }}
-      
+          terraform workspace select ${{ github.event.inputs.workspace }} || terraform workspace new ${{ github.event.inputs.workspace }}
+
       - name: Terraform Workspace List
         run: terraform workspace list
 
