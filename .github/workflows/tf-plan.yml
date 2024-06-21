@@ -39,15 +39,10 @@ jobs:
           terraform init \
             -backend-config="organization=github-tfc-ado" \
             -reconfigure \
-            -input=false
-
-      - name: Terraform Workspace Select
-        id: workspace
-        run: |
-          terraform workspace select ${{ github.event.inputs.workspace }} || terraform workspace new ${{ github.event.inputs.workspace }}
-
-      - name: Terraform Workspace List
-        run: terraform workspace list
+            -input=false \
+            -backend=true \
+            -backend-config="hostname=app.terraform.io" \
+            -backend-config="workspace=${{ github.event.inputs.workspace }}"
 
       - name: Terraform Format
         id: fmt
