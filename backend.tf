@@ -1,12 +1,12 @@
-terraform {
-  required_version = ">= 0.13"
+# terraform {
+#   required_version = ">= 0.13"
 
-  backend "remote" {
-    hostname     = "app.terraform.io"
-    organization = "github-tfc-ado"
+#   backend "remote" {
+#     hostname     = "app.terraform.io"
+#     organization = "github-tfc-ado"
 
-    workspaces {
-      name = "iac-dev"
-    }
-  }
-}
+#     workspaces {
+#       name = "iac-dev"
+#     }
+#   }
+# }

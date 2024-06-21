@@ -7,19 +7,12 @@ terraform {
     }
   }
 
-  #   backend "remote" {
-  #   organization = "github-tfc-ado"
-
-  #   workspaces {
-  #     prefix = "iac-"
-  #   }
-  # }
-  # cloud {
-  #   organization = "github-tfc-ado"
-  #   workspaces {
-  #     name = "ado-integration"
-  #   }
-  # }
+  cloud {
+    organization = "github-tfc-ado"
+    workspaces {
+      name = "iac-dev"
+    }
+  }
 }
 
 provider "azurerm" {
