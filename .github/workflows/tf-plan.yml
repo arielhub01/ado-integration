@@ -4,12 +4,27 @@ on:
   push:
     branches:
       - FeatureSA01
+  workflow_dispatch:
+    inputs:
+      workspace:
+        description: 'Terraform Workspace'
+        required: true
+        default: 'iac-dev'
+        type: choice
+        options:
+          - iac-dev
+          - iac-staging
+          - iac-prod
 
 jobs:
   terraform:
     name: "Terraform"
     runs-on: ubuntu-latest
-    
+
+    env:
+      TF_WORKSPACE: ${{ github.event.inputs.workspace }}
+      TFC_ORG: github-tfc-ado
+
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -27,11 +42,15 @@ jobs:
         id: init
         run: terraform init
 
+      - name: Set Terraform Workspace
+        id: workspace
+        run: terraform workspace select ${{ env.TF_WORKSPACE }}
+
       - name: Terraform Validate
         id: validate
         run: terraform validate -no-color
 
       - name: Terraform Plan
         id: plan
-        if: github.event_name == 'push'
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
         run: terraform plan -no-color
