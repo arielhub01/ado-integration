@@ -6,7 +6,7 @@ terraform {
     organization = "github-tfc-ado"
 
     workspaces {
-      prefix = "iac-"
+      name = "iac-dev"
     }
   }
 }

@@ -42,7 +42,6 @@ jobs:
             -input=false \
             -backend=true \
             -backend-config="hostname=app.terraform.io" \
-            -backend-config="workspace=iac-dev"
 
       - name: Terraform Format
         id: fmt
