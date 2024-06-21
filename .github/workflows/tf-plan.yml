@@ -40,9 +40,10 @@ jobs:
             -backend-config="organization=github-tfc-ado" \
             -reconfigure
 
-      - name: Set Terraform Workspace
+      - name: Select Terraform Workspace
         id: workspace
         run: |
+          terraform workspace list
           terraform workspace select ${{ github.event.inputs.workspace }} || terraform workspace new ${{ github.event.inputs.workspace }}
 
       - name: Terraform Format
