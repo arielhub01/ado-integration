@@ -12,9 +12,9 @@ on:
         default: 'iac-dev'
         type: choice
         options:
-          - iac-dev
-          - iac-staging
-          - iac-prod
+          - 'iac-dev'
+          - 'iac-staging'
+          - 'iac-prod'
 
 jobs:
   terraform:
