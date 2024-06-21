@@ -7,13 +7,13 @@ terraform {
     }
   }
 
-    backend "remote" {
-    organization = "github-tfc-ado"
+  #   backend "remote" {
+  #   organization = "github-tfc-ado"
 
-    workspaces {
-      prefix = "iac-"
-    }
-  }
+  #   workspaces {
+  #     prefix = "iac-"
+  #   }
+  # }
   # cloud {
   #   organization = "github-tfc-ado"
   #   workspaces {
