@@ -21,10 +21,6 @@ jobs:
     name: "Terraform"
     runs-on: ubuntu-latest
 
-    env:
-      TF_WORKSPACE: ${{ github.event.inputs.workspace }}
-      TFC_ORG: github-tfc-ado
-
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -44,7 +40,7 @@ jobs:
 
       - name: Set Terraform Workspace
         id: workspace
-        run:  terraform workspace select ${{ github.event.inputs.workspace }}
+        run: terraform workspace select ${{ github.event.inputs.workspace }}
 
       - name: Terraform Validate
         id: validate
