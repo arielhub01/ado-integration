@@ -3,28 +3,28 @@ name: "Terraform-Plan-Infra-Plan"
 on:
   push:
     branches:
-      - main
-
+      - FeatureSA01
   workflow_dispatch:
     inputs:
       workspace:
-        description: 'Select Terraform Cloud Workspace'
+        description: 'Terraform Workspace'
         required: true
+        default: 'iac-dev'
         type: choice
         options:
           - iac-dev
           - iac-staging
-          - iac-production
+          - iac-prod
 
 jobs:
   terraform:
-    name: "Terraform Plan"
+    name: "Terraform"
     runs-on: ubuntu-latest
 
     env:
-      TF_CLI_CONFIG_FILE: ${{ secrets.TF_API_TOKEN }}  # Make sure your Terraform CLI configuration is stored as a secret
-      TF_VAR_org: github-tfc-ado
-    
+      TF_WORKSPACE: ${{ github.event.inputs.workspace }}
+      TFC_ORG: github-tfc-ado
+
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -40,11 +40,11 @@ jobs:
 
       - name: Terraform Init
         id: init
-        run: terraform init -backend-config="organization=${{ env.TF_VAR_org }}" -backend-config="workspaces.name=${{ github.event.inputs.workspace }}"
+        run: terraform init
 
-      - name: Select Terraform Cloud workspace
-        run: terraform workspace select ${{ github.event.inputs.workspace }}
-        continue-on-error: true  # Allow to continue if workspace doesn't exist
+      - name: Set Terraform Workspace
+        id: workspace
+        run: terraform workspace select ${{ env.TF_WORKSPACE }}
 
       - name: Terraform Validate
         id: validate
@@ -52,5 +52,5 @@ jobs:
 
       - name: Terraform Plan
         id: plan
-        if: github.event_name == 'push'
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
         run: terraform plan -no-color
