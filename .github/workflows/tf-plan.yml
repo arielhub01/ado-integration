@@ -20,6 +20,10 @@ jobs:
   terraform:
     name: "Terraform Plan"
     runs-on: ubuntu-latest
+
+    env:
+      TF_CLI_CONFIG_FILE: ${{ secrets.TF_API_TOKEN }}  # Make sure your Terraform CLI configuration is stored as a secret
+      TF_VAR_org: github-tfc-ado
     
     steps:
       - name: Checkout
