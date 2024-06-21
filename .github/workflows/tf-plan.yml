@@ -36,12 +36,7 @@ jobs:
       - name: Terraform Init
         id: init
         run: |
-          terraform init \
-            -backend-config="organization=github-tfc-ado" \
-            -reconfigure \
-            -input=false \
-            -backend=true \
-            -backend-config="hostname=app.terraform.io" \
+          terraform init 
 
       - name: Terraform Format
         id: fmt
@@ -53,5 +48,4 @@ jobs:
 
       - name: Terraform Plan
         id: plan
-        if: github.event_name == 'push' || github.event.inputs.workspace
         run: terraform plan -no-color
