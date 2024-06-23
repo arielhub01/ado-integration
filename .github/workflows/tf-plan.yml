@@ -48,7 +48,7 @@ jobs:
         id: validate
         run: |
            echo ./${{ github.event.inputs.env_workspace }}-varfile.tfvars
-           terraform validate  -no-color
+           terraform validate -no-color
 
       - name: "Terraform Plan"
         id: plan
