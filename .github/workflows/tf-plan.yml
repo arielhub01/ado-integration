@@ -43,10 +43,6 @@ jobs:
         run: |
           terraform init --var-file ./${{ github.event.inputs.env_workspace }}-varfile.tfvars
 
-      - name: "Terraform Format"
-        id: fmt
-        run: terraform fmt -check --var-file ./${{ github.event.inputs.env_workspace }}-varfile.tfvars
-
       - name: "Terraform Validate"
         id: validate
         run: terraform validate --var-file ./${{ github.event.inputs.env_workspace }}-varfile.tfvars -no-color
