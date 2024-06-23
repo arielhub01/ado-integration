@@ -48,4 +48,11 @@ jobs:
       - name: "Terraform Plan"
         id: plan
         run: |
-           terraform plan --var-file ./${{ github.event.inputs.env_workspace }}-varfile.tfvars -no-color
+           terraform plan --var-file ./${{ github.event.inputs.env_workspace }}-varfile.tfvars -out ./iac-${{ github.event.inputs.env_workspace }}.tfplan -no-color
+           ls -la *
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+             name: my-artifact-iac-${{ github.event.inputs.env_workspace }}
+             path: ./iac-${{ github.event.inputs.env_workspace }}.tfplan
