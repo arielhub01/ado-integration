@@ -34,7 +34,7 @@ jobs:
         run: unset TF_WORKSPACE
 
       - name: Terraform Init
-        id: init
+        id: setworkspace
         run: |
           sed -i 's/${{ github.event.inputs.env_workspace }}//g' ../main.tf
           cat ../main.tf
