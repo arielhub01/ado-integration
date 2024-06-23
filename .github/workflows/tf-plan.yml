@@ -33,25 +33,19 @@ jobs:
       - name: "Set Workspace ${{ github.event.inputs.env_workspace }}"
         id: setworkspace
         run: |
-          echo ${{ github.event.inputs.env_workspace }}
-          ls -la *
           sed -i 's/env-dev/iac-${{ github.event.inputs.env_workspace }}/g' ./main.tf
-          cat ./main.tf
 
       - name: "Terraform Init"
         id: init
         run: |
-          echo ./${{ github.event.inputs.env_workspace }}-varfile.tfvars
           terraform init --var-file ./${{ github.event.inputs.env_workspace }}-varfile.tfvars
 
       - name: "Terraform Validate"
         id: validate
         run: |
-           echo ./${{ github.event.inputs.env_workspace }}-varfile.tfvars
            terraform validate -no-color
 
       - name: "Terraform Plan"
         id: plan
         run: |
-           echo ./${{ github.event.inputs.env_workspace }}-varfile.tfvars
            terraform plan --var-file ./${{ github.event.inputs.env_workspace }}-varfile.tfvars -no-color
