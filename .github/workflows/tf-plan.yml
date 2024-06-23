@@ -41,12 +41,17 @@ jobs:
       - name: "Terraform Init"
         id: init
         run: |
+          echo ./${{ github.event.inputs.env_workspace }}-varfile.tfvars
           terraform init --var-file ./${{ github.event.inputs.env_workspace }}-varfile.tfvars
 
       - name: "Terraform Validate"
         id: validate
-        run: terraform validate --var-file ./${{ github.event.inputs.env_workspace }}-varfile.tfvars -no-color
+        run: |
+           echo ./${{ github.event.inputs.env_workspace }}-varfile.tfvars
+           terraform validate --var-file ./${{ github.event.inputs.env_workspace }}-varfile.tfvars -no-color
 
       - name: "Terraform Plan"
         id: plan
-        run: terraform plan --var-file ./${{ github.event.inputs.env_workspace }}-varfile.tfvars -no-color
+        run: |
+           echo ./${{ github.event.inputs.env_workspace }}-varfile.tfvars
+           terraform plan --var-file ./${{ github.event.inputs.env_workspace }}-varfile.tfvars -no-color
