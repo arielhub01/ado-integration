@@ -17,6 +17,8 @@ on:
               - staging
               - prod
 
+permissions: read-all
+
 jobs:
   terraform:
     name: "Terraform"
