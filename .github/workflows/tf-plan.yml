@@ -1,4 +1,4 @@
-name: "Terraform-Plan-Infra-Plan"
+name: "Terraform-Infra-Plan"
 
 on:
   push:
@@ -6,24 +6,20 @@ on:
       - FeatureSA01
   workflow_dispatch:
     inputs:
-      workspace:
+      env_workspace:
         description: 'Terraform Workspace'
         required: true
-        default: 'iac-dev'
+        default: 'dev'
         type: choice
         options:
-          - iac-dev
-          - iac-staging
-          - iac-prod
+          - dev
+          - staging
+          - prod
 
 jobs:
   terraform:
     name: "Terraform"
     runs-on: ubuntu-latest
-
-    env:
-      TF_WORKSPACE: ${{ github.event.inputs.workspace }}
-      TFC_ORG: github-tfc-ado
 
     steps:
       - name: Checkout
@@ -34,23 +30,22 @@ jobs:
         with:
           cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
-      - name: Terraform Format
-        id: fmt
-        run: terraform fmt -check
+      - name: "Set Workspace ${{ github.event.inputs.env_workspace }}"
+        id: setworkspace
+        run: |
+          sed -i 's/env-dev/iac-${{ github.event.inputs.env_workspace }}/g' ./main.tf
 
-      - name: Terraform Init
+      - name: "Terraform Init"
         id: init
-        run: terraform init
+        run: |
+          terraform init --var-file ./${{ github.event.inputs.env_workspace }}-varfile.tfvars
 
-      - name: Set Terraform Workspace
-        id: workspace
-        run: terraform workspace select ${{ env.TF_WORKSPACE }}
-
-      - name: Terraform Validate
+      - name: "Terraform Validate"
         id: validate
-        run: terraform validate -no-color
+        run: |
+           terraform validate -no-color
 
-      - name: Terraform Plan
+      - name: "Terraform Plan"
         id: plan
-        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
-        run: terraform plan -no-color
+        run: |
+           terraform plan --var-file ./${{ github.event.inputs.env_workspace }}-varfile.tfvars -no-color
