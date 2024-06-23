@@ -45,7 +45,7 @@ jobs:
 
       - name: "Terraform Format"
         id: fmt
-        run: terraform fmt -check
+        run: terraform fmt --var-file ./${{ github.event.inputs.env_workspace }}-varfile.tfvars -check
 
       - name: "Terraform Validate"
         id: validate
