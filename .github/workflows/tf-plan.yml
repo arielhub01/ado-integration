@@ -6,7 +6,7 @@ on:
       - FeatureSA01
   workflow_dispatch:
     inputs:
-      workspace:
+      env_workspace:
         description: 'Terraform Workspace'
         required: true
         default: 'iac-dev'
@@ -32,6 +32,12 @@ jobs:
 
       - name: Unset TF_WORKSPACE
         run: unset TF_WORKSPACE
+
+      - name: Terraform Init
+        id: init
+        run: |
+          sed -i 's/${{ github.event.inputs.env_workspace }}//g' ../main.tf
+          cat ../main.tf
 
       - name: Terraform Init
         id: init

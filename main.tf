@@ -10,7 +10,7 @@ terraform {
   cloud {
     organization = "github-tfc-ado"
     workspaces {
-      name = "iac-dev"
+      name = "env-dev"
     }
   }
 }
