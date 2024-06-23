@@ -1,5 +1,5 @@
 resource "azurerm_resource_group" "demo" {
-  name     = "github-tfc-ado-rg"
+  name     = "github-tfc-ado-${var.work_env}-rg"
   location = "Australia East"
 }
 
