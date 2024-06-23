@@ -4,6 +4,17 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
+      inputs:
+          env_workspace:
+            description: 'Terraform Workspace'
+            required: true
+            default: 'dev'
+            type: choice
+            options:
+              - dev
+              - staging
+              - prod
 
 jobs:
   terraform:
@@ -19,14 +30,20 @@ jobs:
         with:
           cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
-      - name: Terraform Init
+      - name: "Set Workspace ${{ github.event.inputs.env_workspace }}"
+        id: setworkspace
+        run: |
+         sed -i 's/env-dev/iac-${{ github.event.inputs.env_workspace }}/g' ./main.tf
+
+      - name: "Terraform Init"
         id: init
-        run: terraform init
+        run: |
+           terraform init --var-file ./${{ github.event.inputs.env_workspace }}-varfile.tfvars
 
       - name: Terraform Plan
         id: plan
         if: github.event_name == 'push'
-        run: terraform plan -no-color
+        run: terraform plan --var-file ./${{ github.event.inputs.env_workspace }}-varfile.tfvars -no-color
         continue-on-error: true
 
       - name: Terraform Plan Status
@@ -35,4 +52,4 @@ jobs:
 
       - name: Terraform Apply
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        run: terraform apply -auto-approve
+        run: terraform apply -auto-approve --var-file ./${{ github.event.inputs.env_workspace }}-varfile.tfvars
