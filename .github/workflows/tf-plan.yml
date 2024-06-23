@@ -55,4 +55,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
              name: my-artifact-iac-${{ github.event.inputs.env_workspace }}
-             path: ./iac-${{ github.event.inputs.env_workspace }}.tfplan
+             path: ./
+
+      - name: Run Checkov to scan the Terraform plan
+        run: |
+                 docker pull bridgecrew/checkov:latest
+                 docker run -v $(pwd):/tf -e TF_REGISTRY_TOKEN=${{ secrets.TF_API_TOKEN }} -t bridgecrew/checkov --download-external-modules true -d /tf --skip-check INFO
