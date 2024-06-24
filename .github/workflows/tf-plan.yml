@@ -36,7 +36,6 @@ jobs:
       - name: "Set Workspace ${{ github.event.inputs.env_workspace }}"
         id: setworkspace
         run: |
-          ls -la *
           sed -i 's/env-dev/iac-${{ github.event.inputs.env_workspace }}/g' ./terraform/main.tf
 
       - name: "Terraform Init"
@@ -63,7 +62,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
              name: my-artifact-iac-${{ github.event.inputs.env_workspace }}
-             path: ./terraform
+             path: ./terraform/iac-${{ github.event.inputs.env_workspace }}.tfplan
 
       - name: Run Checkov to scan the Terraform plan
         run: |
