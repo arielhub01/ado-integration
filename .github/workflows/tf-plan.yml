@@ -5,6 +5,7 @@ on:
   #   branches:
   #     - FeatureSA01
   workflow_dispatch:
+    #checkov:skip=CKV_GHA_7: "The build output cannot be affected by user parameters other than the build entry point and the top-level source location. GitHub Actions workflow_dispatch 
     inputs:
       env_workspace:
         description: 'Terraform Workspace'
@@ -16,9 +17,62 @@ on:
           - staging
           - prod
 
+permissions: read-all
+
 jobs:
-  terraform:
-    name: "Terraform"
+  checkov_scan:
+    name: "Checkov Scan"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3.5.3
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2.0.3
+        with:
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+      - name: Run Checkov to scan the Terraform plan
+        run: |
+                docker pull bridgecrew/checkov:latest
+                docker run -v $(pwd):/tf -e TF_REGISTRY_TOKEN=${{ secrets.TF_API_TOKEN }} -t bridgecrew/checkov --download-external-modules true -d /tf --skip-check INFO
+  tflint_check:
+    name: "TFLint Check"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Run TFLint in Docker container
+        run: |
+          # Pull the TFLint Docker image from the specified repository
+          docker pull ghcr.io/terraform-linters/tflint-bundle
+
+          # Run TFLint within a Docker container, mapping the current working directory to /data
+          docker run --rm -v $PWD:/data ghcr.io/terraform-linters/tflint-bundle
+
+
+  tf_format:
+    name: "Format Check"
+    runs-on: ubuntu-latest
+    steps:
+    # Checkout code for the Github Actions runner
+      - name: Checkout
+        uses: actions/checkout@v3.5.3 
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2.0.3
+        with:
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+      - name: Terraform FMT Check
+        run: |
+            terraform fmt -check -recursive
+
+  tf_validate:
+    name: "Terraform Validate"
     runs-on: ubuntu-latest
 
     steps:
@@ -33,19 +87,83 @@ jobs:
       - name: "Set Workspace ${{ github.event.inputs.env_workspace }}"
         id: setworkspace
         run: |
-          sed -i 's/env-dev/iac-${{ github.event.inputs.env_workspace }}/g' ./main.tf
+          sed -i 's/env-dev/iac-${{ github.event.inputs.env_workspace }}/g' ./terraform/main.tf
 
       - name: "Terraform Init"
         id: init
         run: |
-          terraform init --var-file ./${{ github.event.inputs.env_workspace }}-varfile.tfvars
+          cd ./terraform
+          terraform init --var-file ./../environment/${{ github.event.inputs.env_workspace }}-varfile.tfvars
 
       - name: "Terraform Validate"
         id: validate
         run: |
+           cd ./terraform
            terraform validate -no-color
+
+  tf_plan:
+    name: "Terraform Plan"
+    runs-on: ubuntu-latest
+    needs: [tf_validate, tf_format, tflint_check, checkov_scan ]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2.0.3
+        with:
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+      - name: "Set Workspace ${{ github.event.inputs.env_workspace }}"
+        id: setworkspace
+        run: |
+          sed -i 's/env-dev/iac-${{ github.event.inputs.env_workspace }}/g' ./terraform/main.tf
+
+      - name: "Terraform Init"
+        id: init
+        run: |
+          cd ./terraform
+          terraform init --var-file ./../environment/${{ github.event.inputs.env_workspace }}-varfile.tfvars
 
       - name: "Terraform Plan"
         id: plan
         run: |
-           terraform plan --var-file ./${{ github.event.inputs.env_workspace }}-varfile.tfvars -no-color
+           cd ./terraform
+           terraform plan --var-file ./../environment/${{ github.event.inputs.env_workspace }}-varfile.tfvars -out ./iac-${{ github.event.inputs.env_workspace }}.tfplan -no-color
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+             name: my-artifact-iac-${{ github.event.inputs.env_workspace }}
+             path: ./terraform/iac-${{ github.event.inputs.env_workspace }}.tfplan
+
+  tf_apply:
+     name: "Terraform Apply"
+     runs-on: ubuntu-latest
+     needs: [tf_plan]
+     steps:
+        - name: Checkout
+          uses: actions/checkout@v2
+  
+        - name: Setup Terraform
+          uses: hashicorp/setup-terraform@v2.0.3
+          with:
+            cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+  
+        - name: "Set Workspace ${{ github.event.inputs.env_workspace }}"
+          id: setworkspace
+          run: |
+             sed -i 's/env-dev/iac-${{ github.event.inputs.env_workspace }}/g' ./terraform/main.tf
+    
+        - name: "Terraform Init"
+          id: init
+          run: |
+             cd ./terraform
+             terraform init --var-file ./../environment/${{ github.event.inputs.env_workspace }}-varfile.tfvars
+
+        - name: Terraform Apply
+          # if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+          run: |
+            cd ./terraform
+            terraform apply -auto-approve --var-file ./../environment/${{ github.event.inputs.env_workspace }}-varfile.tfvars
