@@ -167,4 +167,4 @@ jobs:
           # if: github.ref == 'refs/heads/main' && github.event_name == 'push'
           run: |
             cd ./terraform
-            terraform apply -auto-approve --var-file ./../${{ github.event.inputs.env_workspace }}-varfile.tfvars
+            terraform apply -auto-approve --var-file ./../environment/${{ github.event.inputs.env_workspace }}-varfile.tfvars
