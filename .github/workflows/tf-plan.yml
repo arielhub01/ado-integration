@@ -37,7 +37,7 @@ jobs:
         run: |
                 docker pull bridgecrew/checkov:latest
                 docker run -v $(pwd):/tf -e TF_REGISTRY_TOKEN=${{ secrets.TF_API_TOKEN }} -t bridgecrew/checkov --download-external-modules true -d /tf --skip-check INFO
-  tflink_check:
+  tflint_check:
     name: "TFLint Check"
     runs-on: ubuntu-latest
 
@@ -47,6 +47,8 @@ jobs:
 
       - name: Run TFLint in Docker container
         run: |
+          ls -la *
+          echo "############### Linting ###############"
           # Pull the TFLint Docker image from the specified repository
           docker pull ghcr.io/terraform-linters/tflint-bundle
 
@@ -104,6 +106,7 @@ jobs:
   tf_plan:
     name: "Terraform Plan"
     runs-on: ubuntu-latest
+    needs: [tf_validate, tf_format, tflint_check, checkov_scan ]
 
     steps:
       - name: Checkout
@@ -125,12 +128,6 @@ jobs:
           ls -la *
           cd ./terraform
           terraform init --var-file ./../environment/${{ github.event.inputs.env_workspace }}-varfile.tfvars
-
-      - name: "Terraform Validate"
-        id: validate
-        run: |
-           cd ./terraform
-           terraform validate -no-color
 
       - name: "Terraform Plan"
         id: plan
