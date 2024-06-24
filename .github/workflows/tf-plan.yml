@@ -49,13 +49,14 @@ jobs:
       - name: "Terraform Validate"
         id: validate
         run: |
+           cd ./terraform
            terraform validate -no-color
 
       - name: "Terraform Plan"
         id: plan
         run: |
            cd ./terraform
-           terraform plan --var-file /.../environment/${{ github.event.inputs.env_workspace }}-varfile.tfvars -out ./terraform/iac-${{ github.event.inputs.env_workspace }}.tfplan -no-color
+           terraform plan --var-file /./../environment/${{ github.event.inputs.env_workspace }}-varfile.tfvars -out ./terraform/iac-${{ github.event.inputs.env_workspace }}.tfplan -no-color
            ls -la *
 
       - name: Upload Artifact
