@@ -20,8 +20,89 @@ on:
 permissions: read-all
 
 jobs:
-  terraform:
-    name: "Terraform"
+  checkov_scan:
+    name: "Checkov Scan"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3.5.3
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2.0.3
+        with:
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+      - name: Run Checkov to scan the Terraform plan
+        run: |
+                docker pull bridgecrew/checkov:latest
+                docker run -v $(pwd):/tf -e TF_REGISTRY_TOKEN=${{ secrets.TF_API_TOKEN }} -t bridgecrew/checkov --download-external-modules true -d /tf --skip-check INFO
+  tflink_check:
+    name: "TFLint Check"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Run TFLint in Docker container
+        run: |
+          # Pull the TFLint Docker image from the specified repository
+          docker pull ghcr.io/terraform-linters/tflint-bundle
+
+          # Run TFLint within a Docker container, mapping the current working directory to /data
+          docker run --rm -v $PWD:/data ghcr.io/terraform-linters/tflint-bundle
+
+  tf_format:
+    name: "Format Check"
+    runs-on: ubuntu-latest
+    steps:
+    # Checkout code for the Github Actions runner
+      - name: Checkout
+        uses: actions/checkout@v3.5.3 
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2.0.3
+        with:
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+      - name: Terraform FMT Check
+        run: |
+            terraform fmt -check -recursive
+
+  tf_validate:
+    name: "Terraform Validate"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2.0.3
+        with:
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+      - name: "Set Workspace ${{ github.event.inputs.env_workspace }}"
+        id: setworkspace
+        run: |
+          sed -i 's/env-dev/iac-${{ github.event.inputs.env_workspace }}/g' ./terraform/main.tf
+
+      - name: "Terraform Init"
+        id: init
+        run: |
+          ls -la *
+          cd ./terraform
+          terraform init --var-file ./../environment/${{ github.event.inputs.env_workspace }}-varfile.tfvars
+
+      - name: "Terraform Validate"
+        id: validate
+        run: |
+           cd ./terraform
+           terraform validate -no-color
+
+  tf_plan:
+    name: "Terraform Plan"
     runs-on: ubuntu-latest
 
     steps:
@@ -63,8 +144,3 @@ jobs:
         with:
              name: my-artifact-iac-${{ github.event.inputs.env_workspace }}
              path: ./terraform/iac-${{ github.event.inputs.env_workspace }}.tfplan
-
-      - name: Run Checkov to scan the Terraform plan
-        run: |
-                 docker pull bridgecrew/checkov:latest
-                 docker run -v $(pwd):/tf -e TF_REGISTRY_TOKEN=${{ secrets.TF_API_TOKEN }} -t bridgecrew/checkov --download-external-modules true -d /tf --skip-check INFO
