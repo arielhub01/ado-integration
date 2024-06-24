@@ -43,7 +43,8 @@ jobs:
         id: init
         run: |
           ls -la *
-          terraform init --var-file ./environment/${{ github.event.inputs.env_workspace }}-varfile.tfvars
+          cd ./terraform
+          terraform init --var-file ./../environment/${{ github.event.inputs.env_workspace }}-varfile.tfvars
 
       - name: "Terraform Validate"
         id: validate
@@ -53,7 +54,8 @@ jobs:
       - name: "Terraform Plan"
         id: plan
         run: |
-           terraform plan --var-file ./environment/${{ github.event.inputs.env_workspace }}-varfile.tfvars -out ./terraform/iac-${{ github.event.inputs.env_workspace }}.tfplan -no-color
+           cd ./terraform
+           terraform plan --var-file /.../environment/${{ github.event.inputs.env_workspace }}-varfile.tfvars -out ./terraform/iac-${{ github.event.inputs.env_workspace }}.tfplan -no-color
            ls -la *
 
       - name: Upload Artifact
