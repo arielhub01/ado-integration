@@ -47,16 +47,12 @@ jobs:
 
       - name: Run TFLint in Docker container
         run: |
-          ls -la *
-          echo "############### Linting ###############"
           # Pull the TFLint Docker image from the specified repository
           docker pull ghcr.io/terraform-linters/tflint-bundle
 
           # Run TFLint within a Docker container, mapping the current working directory to /data
           docker run --rm -v $PWD:/data ghcr.io/terraform-linters/tflint-bundle
-          echo "############### Checking File Listing ################"
-          echo "Working directory $PWD"
-          ls -la *
+
 
   tf_format:
     name: "Format Check"
